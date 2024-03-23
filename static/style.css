@@ -1,0 +1,26 @@
+h1 {
+    background-color: pink;
+    color: grey;
+    padding: 10px; margin: 0;
+}
+
+#info {
+    margin: 16px; padding: 8px;
+}
+
+select {
+    width: 13em;
+}
+
+.fblock{
+    border: 1px solid silver;
+    padding: 8px; margin: 8px;
+}
+
+.box-noborder {
+    padding: 8px; margin: 8px;
+}
+
+th{
+    text-align: right;
+}

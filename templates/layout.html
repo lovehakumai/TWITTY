@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href=""
+        <link rel="stylesheet" href="/static/side-menu.css">
+        <link rel="stylesheet" href="/static/style.css">
+        <title>Masa's Tweety</title>
+    </head>
+    <body>
+        <div id="layout" class="page">
+            {% block header %}
+            <!--ここにヘッダー-->
+            {% endblock %}
+            <div id="main">
+                <div class="header">
+                    <h1>
+                        {% block title %}
+                        Masa's Tweety
+                        {% endblock %}
+                    </h1>
+                </div>
+                {% block contents %}
+                <!--ここにメインコンテンツ-->
+                {% endblock %}
+                {% block footer %}
+                <div class="footer">
+                    <a href="/" class="pure-button">トップページへ</a>
+                </div>
+                {% endblock %}
+            </div>
+        </div>
+    </body>
+</html>

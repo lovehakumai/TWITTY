@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../flask-app"
+		},
+		{
+			"path": "../../purecss_test"
+		},
+		{
+			"path": "../../WebApp/flask_db_train"
+		}
+	],
+	"settings": {}
+}

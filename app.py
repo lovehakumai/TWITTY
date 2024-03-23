@@ -1,11 +1,15 @@
-from flask import Flask, request, render_template, url_for
-from flask import redirect, Markup, session
+from flask import Flask, request, render_template
+from flask import redirect, session
+from markupsafe import Markup
 import os, time
-import sns_user as user, sns_data as sns_data
+import sns_user as user, sns_data as sns_data, relation as rel
 from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from extensions import db, migrate
 
 # BASE_DIR
-BASE_DIR = os.pat.dirname(__file__)
+BASE_DIR = os.path.dirname(__file__)
 IMAGE_FILE = BASE_DIR + '/data/images'
 PROFILE_FILE = BASE_DIR + '/data/thumbnails'
 USER_FILE = BASE_DIR + '/data/users.sqlite3'
@@ -15,14 +19,37 @@ POST_FILE = BASE_DIR + '/data/post.sqlite3'
 
 # Flaskインスタンスの作と暗号化キーの決定
 app = Flask(__name__)
-secret_key = "jknmmM9090"
+secret_key = "test_key"
+
+# Flask-Migrate
+# アプリケーションでFlask-Migrateを使用するためには、
+# app.py（またはアプリケーションのメインスクリプト）でFlask-Migrateを設定する必要があります。
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False # ログインchat.openai.com/c/db3a03dc-0a6d-47fc-8c68-e865eaa70241
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/uramasaharu/Desktop/develop/flask_x/sqlite/main.db'
+
+db.init_app(app)
+migrate.init_app(app,db)
+# モデルをインポート
+    # Flask-Migrate（FlaskのためのAlembicのラッパー）を使用する場合、
+    # モデルが複数のファイルに分割されていても、
+    # マイグレーションを実行するプロセスは変わりません。
+    # 重要なのは、アプリケーションの初期化時に
+    # これらのモデルを読み込むことを確実にすることです。
+    # Flask-Migrateは、dbインスタンスを介してモデル定義を探しますので、
+    # マイグレーションプロセスを実行する前に、
+    # アプリケーションがすべてのモデル定義を認識している必要があります。
+from models.Users import Users
+from models.Relations import Relations
+from models.Post_contents import Post_contents
+from models.Post_communications import Post_communications
+
 
 # URLルーティング
 @app.route('/')
 def index():
     if 'login' in session:
         user_id = session.get('user_id')
-        return redirect('home' +user_id)
+        return redirect('home/' +user_id)
     else:
         return redirect('/welcome')
 
@@ -59,19 +86,19 @@ def create_account_try():
 
 # ホーム画面
 @app.route('/home/<user_id>')
-@login_required
+@user.login_required
 def home(user_id):
     post_all=user.get_posts(user_id)
     return render_template('home.html',posts=post_all)
 
 # 投稿画面
 @app.route('/post/<user_id>')
-@login_required
+@user.login_required
 def post():
     return render_template('post.html')
 
 @app.route('/post/try/<user_id>', methods=["POST"])
-@login_required
+@user.login_required
 def post_try():
     title = request.form.get('title')
     image = request.files['image']
@@ -86,13 +113,13 @@ def post_try():
     return redirect('/')
 
 # プロファイル画面
-@login_required
+@user.login_required
 @app.route('/myprofile/<user_id>')
 def profile():
     return render_template('myprofile.html')
 
 # プロファイル編集画面
-@login_required
+@user.login_required
 @app.route('/myprofile/<user_id>/edit', method=["POST"])
 def profile_edit():
     user_id = user.get_id()
@@ -112,14 +139,36 @@ def profile_edit():
     sns_data.save_to_post(user_id=user_id, name=name, introduction=introduction, filename=filename)
 
 
-# 他人プロファイル画面
-@login_required
+# 他人プロファイル画面の詳細画面
+@user.login_required
 @app.route('/profile/<user_id>')
-def profile_others():
-    
-    
+def profile_others(user_id):
+    user_id = user.get_id()
+    name = request.get.form('name','')
+    introduction = request.get.form('introduction','')
+    thumbnail = request.files['image']
+    posts = sns_data.get_posts(user_id)
+    return render_template('/profile/<user_id>')
 
-        
+# 他のユーザを検索する画面
+@user.login_required
+@app.route('/user_search')
+def user_search():
+    return render_template('/user_search')
+
+# プロファイル画面から、フォローしている人を一覧で表示
+@user.login_required
+@app.route('/follow_list/<user_id>')
+def follow_list(user_id):
+    following_users = rel.get_all_following(user_id)
+    return render_template('user_following_list.html', users = following_users)
+
+# プロファイル画面から、フォローしてくれている人を一覧で表示
+@user.login_required
+@app.route('/follower_list')
+def follower_list(user_id):
+    follower_users = rel.get_all_following(user_id)
+    return render_template('user_following_list.html', users = follower_users)
 
     
 
