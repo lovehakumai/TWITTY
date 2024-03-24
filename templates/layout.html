@@ -2,10 +2,26 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href=""
+        <link rel="stylesheet" href="/static/node_modules/purecss/build/pure-min.css">
         <link rel="stylesheet" href="/static/side-menu.css">
         <link rel="stylesheet" href="/static/style.css">
-        <title>Masa's Tweety</title>
+        <style>
+            @keyframes fall {
+                0% { transform: translateY(0) rotate(0deg); }
+                100% { transform: translateY(100vh) rotate(360deg); } /* 画面の高さに合わせて調整 */
+            }
+            .cherry-blossom {
+                position: absolute;
+                top: -100px; /* 花びらが画面の上部から始まるように設定 */
+                background-image: url('/static/images/sakurasozai-05.png'); /* ここに正しい画像のパスを指定する */
+                width: 20px;
+                height: 20px;
+                background-size: contain;
+                background-repeat: no-repeat;
+                animation: fall 10s infinite linear;
+            }
+          </style>
+        <title>TWITTY</title>
     </head>
     <body>
         <div id="layout" class="page">
@@ -16,19 +32,28 @@
                 <div class="header">
                     <h1>
                         {% block title %}
-                        Masa's Tweety
+                        TWITTY
                         {% endblock %}
                     </h1>
                 </div>
                 {% block contents %}
                 <!--ここにメインコンテンツ-->
                 {% endblock %}
-                {% block footer %}
-                <div class="footer">
-                    <a href="/" class="pure-button">トップページへ</a>
-                </div>
-                {% endblock %}
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+            const numberOfPetals = 10; // 落としたい花びらの数
+        
+            for (let i = 0; i < numberOfPetals; i++) {
+                const petal = document.createElement('div');
+                petal.classList.add('cherry-blossom');
+                petal.style.left = `${Math.random() * 100}%`; // 左位置をランダム化
+                petal.style.animationDuration = `${Math.random() * 5 + 5}s`; // 5秒から10秒の間でランダム化
+                petal.style.animationDelay = `${Math.random() * 5}s`; // 0秒から5秒の間でアニメーションの遅延をランダム化
+                document.body.appendChild(petal);
+            }
+        });
+        </script>
     </body>
 </html>

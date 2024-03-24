@@ -120,7 +120,7 @@ def profile():
 
 # プロファイル編集画面
 @user.login_required
-@app.route('/myprofile/<user_id>/edit', method=["POST"])
+@app.route('/myprofile/<user_id>/edit', methods=["POST"])
 def profile_edit():
     user_id = user.get_id()
     name = request.get.form('name','')
@@ -169,15 +169,6 @@ def follow_list(user_id):
 def follower_list(user_id):
     follower_users = rel.get_all_following(user_id)
     return render_template('user_following_list.html', users = follower_users)
-
-    
-
-
-
-
-
-
-
-    
-
-
+ 
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5001, debug=True)
