@@ -1,11 +1,9 @@
 from flask import Flask, redirect, session,render_template
 from flask import Response 
 from functools import wraps
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 import models.Users as models_users
 import sqlite3
-import user_sqlite
+import sqlite_func
 import bcrypt
 
 # アカウント作成処理
@@ -14,7 +12,7 @@ def try_create_account(form):
     password = form.get('password')
 
     # ユーザーIDに重複がないかを確認する
-    conn = sqlite3.connect(user_sqlite.USER_FILE)
+    conn = sqlite3.connect(sqlite_func.USER_FILE)
     c = conn.cursor()
     c.execute('SELECT user_id FROM users where user_id=?',(user_id,))
     result = c.fetchone()
@@ -38,7 +36,7 @@ def try_login(form):
     password=form.get('password')
     
     # ユーザー名に基づいてハッシュ化されたパスワードを取得
-    conn = sqlite3.connect(user_sqlite.USER_FILE)
+    conn = sqlite3.connect(sqlite_func.USER_FILE)
     c = conn.cursor()
     c.execute('SELECT password FROM Users where user_id=?',(user_id,))
     result = c.fetchone()

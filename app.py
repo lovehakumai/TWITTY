@@ -2,7 +2,7 @@ from flask import Flask, request, render_template
 from flask import redirect, session
 from markupsafe import Markup
 import os, time
-import sns_user as user, sns_data as sns_data, relation as rel
+import sns_user as user, sns_data as sns_data, relation as rel, sns_posts as post
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -14,12 +14,11 @@ from models.Post_communications import Post_communications
 from models.Post_contents import Post_contents
 
 # BASE_DIR
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGE_FILE = BASE_DIR + '/data/images'
 PROFILE_FILE = BASE_DIR + '/data/thumbnails'
-USER_FILE = BASE_DIR + '/data/users.sqlite3'
-RELATION_FILE = BASE_DIR + '/data/user_relation.sqlite3'
-POST_FILE = BASE_DIR + '/data/post.sqlite3'
+DB_PATH = os.path.join(BASE_DIR, 'sqlite', 'db.sqlite3')
+
 
 
 # Flaskインスタンスの作と暗号化キーの決定
@@ -27,13 +26,6 @@ app = Flask(__name__)
 secret_key = "test_key"
 
 # Flask-Migrate
-# アプリケーションでFlask-Migrateを使用するためには、
-# app.py（またはアプリケーションのメインスクリプト）でFlask-Migrateを設定する必要があります。
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False # ログインchat.openai.com/c/db3a03dc-0a6d-47fc-8c68-e865eaa70241
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/uramasaharu/Desktop/develop/flask_x/sqlite/db.sqlite3'
-
-db.init_app(app)
-migrate.init_app(app,db)
 # モデルをインポート
     # Flask-Migrate（FlaskのためのAlembicのラッパー）を使用する場合、
     # モデルが複数のファイルに分割されていても、
@@ -47,6 +39,13 @@ from models.Users import Users
 from models.Relations import Relations
 from models.Post_contents import Post_contents
 from models.Post_communications import Post_communications
+# アプリケーションでFlask-Migrateを使用するためには、
+# app.py（またはアプリケーションのメインスクリプト）でFlask-Migrateを設定する必要があります。
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False # ログインchat.openai.com/c/db3a03dc-0a6d-47fc-8c68-e865eaa70241
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(DB_PATH)
+
+db.init_app(app)
+migrate.init_app(app,db)
 
 
 # URLルーティング

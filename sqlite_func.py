@@ -2,11 +2,11 @@ import os, sqlite3
 
 # パスの指定
 BASE_DIR = os.path.dirname(__file__)
-USER_FILE = BASE_DIR + '/sqlite/db.sqlite3'
+DB_FILE = BASE_DIR + '/sqlite/db.sqlite3'
 
 
 def open_db():
-    conn = sqlite3.connect(USER_FILE)
+    conn = sqlite3.connect(DB_FILE)
     conn.row_factory = dict_factory
     return conn
 
