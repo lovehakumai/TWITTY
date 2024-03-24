@@ -6,7 +6,12 @@ import sns_user as user, sns_data as sns_data, relation as rel
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from extensions import db, migrate
+from extension import db, migrate
+# スキーマ定義のインポート
+from models.Users import Users
+from models.Relations import Relations
+from models.Post_communications import Post_communications
+from models.Post_contents import Post_contents
 
 # BASE_DIR
 BASE_DIR = os.path.dirname(__file__)
@@ -25,7 +30,7 @@ secret_key = "test_key"
 # アプリケーションでFlask-Migrateを使用するためには、
 # app.py（またはアプリケーションのメインスクリプト）でFlask-Migrateを設定する必要があります。
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False # ログインchat.openai.com/c/db3a03dc-0a6d-47fc-8c68-e865eaa70241
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/uramasaharu/Desktop/develop/flask_x/sqlite/main.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/uramasaharu/Desktop/develop/flask_x/sqlite/db.sqlite3'
 
 db.init_app(app)
 migrate.init_app(app,db)
@@ -66,10 +71,7 @@ def login():
 # ログインページ loginページから入力フォームが送られる
 @app.route('/login/try', methods=["POST"])
 def login_try():
-    ok = user.try_login(request.form)
-    if not ok:
-        return render_template('login.html',msg='IDまたはパスワードが間違っています')
-    return redirect('/')
+    user.try_login(request.form)
 
 # アカウント作成ページ
 @app.route('/create_account')
