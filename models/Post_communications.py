@@ -3,6 +3,7 @@ from datetime import datetime
 from extension import db
 
 class Post_communications(db.Model):
+    user_id = db.Column(db.String(300),index=True)
     post_id = db.Column(db.String(300),primary_key=True)
     replyed_by = db.Column(db.String(300))
     reply_no = db.Column(db.Integer)
