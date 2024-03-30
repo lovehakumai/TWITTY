@@ -1,11 +1,8 @@
 from flask import Flask, request, render_template
 from flask import redirect, session
-from markupsafe import Markup
-import os, time
+import os
 import sns_user as user, sns_data as sns_data, relation as rel, sns_posts as post
 from werkzeug.utils import secure_filename
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from extension import db, migrate
 # スキーマ定義のインポート
 from models.Users import Users
@@ -23,7 +20,7 @@ DB_PATH = os.path.join(BASE_DIR, 'sqlite', 'db.sqlite3')
 
 # Flaskインスタンスの作と暗号化キーの決定
 app = Flask(__name__)
-secret_key = "test_key"
+app.secret_key = "test_key"
 
 # Flask-Migrate
 # モデルをインポート
@@ -52,8 +49,8 @@ migrate.init_app(app,db)
 @app.route('/')
 def index():
     if 'login' in session:
-        user_id = session.get('user_id')
-        return redirect('home/' +user_id)
+        user_id = session.get('login')
+        return redirect('home/' + user_id)
     else:
         return redirect('/welcome')
 
@@ -70,7 +67,18 @@ def login():
 # ログインページ loginページから入力フォームが送られる
 @app.route('/login/try', methods=["POST"])
 def login_try():
-    user.try_login(request.form)
+    result, msg = user.try_login(request.form)
+    if result :
+        user_id = session['login']
+        return redirect('/home/',user_id)
+    else:
+        return render_template('login.html', msg=msg)
+
+# ログアウトページ
+@app.route('/logout')
+def logout():
+    user.try_logout()
+    return redirect('/')
 
 # アカウント作成ページ
 @app.route('/create_account')
@@ -80,17 +88,19 @@ def create_account():
 # アカウント作成ページ
 @app.route('/create_account/try',methods=["POST"])
 def create_account_try():
-    ok = user.try_create_account(request.form)
-    if not ok:
-        return render_template('create_account.html',msg='このIDはすでに使われています')
-    return redirect('/')
+    judge, msg = user.try_create_account(request.form)
+    if not judge:
+        return render_template('create_account.html',msg=msg)
+    else:
+        user_id=session['login']
+        return redirect('/')
 
 # ホーム画面
 @app.route('/home/<user_id>')
 @user.login_required
 def home(user_id):
-    post_all=user.get_posts(user_id)
-    return render_template('home.html',posts=post_all)
+    post_all=post.get_posts(user_id)
+    return render_template('home.html',posts=post_all,user_id=user_id)
 
 # 投稿画面
 @app.route('/post/<user_id>')
@@ -170,6 +180,6 @@ def follow_list(user_id):
 def follower_list(user_id):
     follower_users = rel.get_all_following(user_id)
     return render_template('user_following_list.html', users = follower_users)
- 
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)
