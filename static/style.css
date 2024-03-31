@@ -47,3 +47,66 @@ th{
 .header h1 {
     color: white;
 }
+
+/* タイトルをトップに固定するスタイル */
+.fixed-top {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: black; /* 背景色を選択 */
+    z-index: 1000; /* 他の要素より前面に表示 */
+    text-align: center; /* テキストを中央に配置 */
+    padding: 10px 0; /* 上下にパディングを追加 */
+}
+
+/* コンテンツエリアのスタイル */
+.content {
+    display: flex;
+    justify-content: center; /* 中央揃え */
+    align-items: center; /* 垂直中央揃え */
+    flex-direction: column; /* 項目を縦に並べる */
+    margin-top: 50px; /* タイトルの高さ分のマージンを設定 */
+}
+
+/* フッターを底に固定するスタイル */
+.fixed-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: black; /* 背景色を選択 */
+    text-align: center; /* テキストを中央に配置 */
+    padding: 10px 0; /* 上下にパディングを追加 */
+    z-index: 1000; /* 他の要素より前面に表示 */
+}
+
+#layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 垂直方向の中心揃え */
+    justify-content: center; /* 水平方向の中心揃え */
+    padding-top: 60px; /* 上部に「TWITTY」のためのスペースを確保 */
+}
+.menu-link {
+    z-index: 1001; /* ヘッダーの z-index よりも 1 高い */
+}
+
+/* スマートフォンの画面サイズに特化したスタイル */
+@media (max-width: 600px) {
+    .fixed-top {
+        position: static; /* モバイル表示では固定位置を解除 */
+    }
+    #layout {
+        margin-top: 0; /* ヘッダーが固定でない場合の調整 */
+    }
+    .menu-link {
+        position: absolute; /* メニューリンクを絶対位置で配置 */
+        top: 0; /* 上部からの距離 */
+        right: 0; /* 右端からの距離 */
+        z-index: 1001; /* ヘッダーより前面に */
+    }
+    /* メニューが開いた時のヘッダースタイル */
+    #layout.active .fixed-top {
+        position: fixed; /* メニュー展開時は固定位置 */
+        width: 100%; /* 幅を全域に */
+    }
+}

@@ -13,7 +13,7 @@ def get_posts(user_id):
     following_id_list = {}
     post_list = {}
     temp_list = select(
-        'SELECT follow_to FROM Relations WHERE follow_by=?',
+        'SELECT follow_to FROM Relations WHERE followed_by=?',
         user_id
     )
     if len(temp_list)==0:

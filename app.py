@@ -1,7 +1,7 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template,url_for
 from flask import redirect, session
 import os
-import sns_user as user, sns_data as sns_data, relation as rel, sns_posts as post
+import sns_user as user, sns_data as sns_data, relation as rel, sns_posts as posts
 from werkzeug.utils import secure_filename
 from extension import db, migrate
 # スキーマ定義のインポート
@@ -70,7 +70,7 @@ def login_try():
     result, msg = user.try_login(request.form)
     if result :
         user_id = session['login']
-        return redirect('/home/',user_id)
+        return redirect(url_for('home',user_id=user_id))
     else:
         return render_template('login.html', msg=msg)
 
@@ -99,7 +99,7 @@ def create_account_try():
 @app.route('/home/<user_id>')
 @user.login_required
 def home(user_id):
-    post_all=post.get_posts(user_id)
+    post_all=posts.get_posts(user_id)
     return render_template('home.html',posts=post_all,user_id=user_id)
 
 # 投稿画面
