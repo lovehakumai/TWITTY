@@ -31,7 +31,7 @@ th{
     justify-content: center; /* 水平方向の中心揃え */
     align-items: center; /* 垂直方向の中心揃え */
     height: 10vh;
-    padding-top: 30vh;
+    padding-top: 10vh;
 }
 .footer {
     position: fixed;
@@ -87,26 +87,70 @@ th{
     padding-top: 60px; /* 上部に「TWITTY」のためのスペースを確保 */
 }
 .menu-link {
+    top: 50px;
     z-index: 1001; /* ヘッダーの z-index よりも 1 高い */
 }
+.fixed-top {
+    height: 50px;
+    display: flex;
+    justify-content: center; /* 中央寄せ */
+    align-items: center; /* 縦方向の中央寄せ */
+    position: fixed; /* トップに固定 */
+    top: 0; /* トップから0pxの位置 */
+    width: 100%; /* 幅は画面いっぱい */
+    padding: 0 50px; /* パディングでハンバーガーメニューとテキストの間にスペースを作る */
+    box-sizing: border-box; /* パディングとボーダーを幅に含める */
+    z-index: 999; /* メニューリンクよりわずかに低いz-index */
+}
+#menu {
+    position: fixed; /* サイドメニューを固定位置に */
+    top: 50px; /* ヘッダーの高さと同じ値に設定 */
+    /* 他のプロパティ... */
+}
+
 
 /* スマートフォンの画面サイズに特化したスタイル */
 @media (max-width: 600px) {
     .fixed-top {
-        position: static; /* モバイル表示では固定位置を解除 */
+        height: 50px;
+        display: flex;
+        justify-content: center; /* 中央寄せ */
+        align-items: center; /* 縦方向の中央寄せ */
+        position: fixed; /* トップに固定 */
+        top: 0; /* トップから0pxの位置 */
+        width: 100%; /* 幅は画面いっぱい */
+        padding: 0 50px; /* パディングでハンバーガーメニューとテキストの間にスペースを作る */
+        box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        z-index: 999; /* メニューリンクよりわずかに低いz-index */
     }
     #layout {
         margin-top: 0; /* ヘッダーが固定でない場合の調整 */
     }
     .menu-link {
-        position: absolute; /* メニューリンクを絶対位置で配置 */
-        top: 0; /* 上部からの距離 */
-        right: 0; /* 右端からの距離 */
-        z-index: 1001; /* ヘッダーより前面に */
+        top: 50px;
+        position: fixed; /* リンクを画面に固定 */
+        top: 0; /* トップから0pxの位置 */
+        left: 0; /* 左から0pxの位置 */
+        z-index: 1000; /* 他の要素より上に表示するためのz-index */
     }
     /* メニューが開いた時のヘッダースタイル */
     #layout.active .fixed-top {
         position: fixed; /* メニュー展開時は固定位置 */
         width: 100%; /* 幅を全域に */
     }
+    #menu {
+        position: fixed; /* サイドメニューを固定位置に */
+        top: 50px; /* ヘッダーの高さと同じ値に設定 */
+        /* 他のプロパティ... */
+    }
 }
+
+
+/*
+    CSSで使われる単位は多岐にわたり、レイアウトやデザインを指定する際に使われます。主に以下のような単位があります：
+    ピクセル（px）: 画面上の一点を表すデジタル画像の最小単位です。多くのディスプレイでは、1pxは物理的な一点を指しますが、高解像度のディスプレイでは複数の物理的な点が1pxを形成する場合もあります。
+    ビューポート高さ（vh）: ビューポート（ブラウザの可視領域）の高さに基づく相対的な単位です。1vhはビューポートの高さの1%を表します。
+    ビューポート幅（vw）: ビューポートの幅に基づく相対的な単位です。1vwはビューポートの幅の1%を表します。
+    パーセント（%）: 親要素の寸法に対する相対的な単位です。例えば、幅が50%の要素は、それを含む親要素の幅の50%の大きさになります。
+    em: 要素のフォントサイズに対する相対的な単位です。例えば、フォントサイズが16pxの要素に対して2emは32pxに相当します。
+*/

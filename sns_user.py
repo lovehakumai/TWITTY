@@ -84,3 +84,9 @@ def is_login():
 # ログアウト
 def try_logout():
     session.pop('login', None)
+
+# ユーザIDをもとに該当するレコードを返す関数
+def user_info(user_id):
+    conn = sqlite3.connect(sqlite_func.DB_FILE)
+    c = conn.cursor()
+    c.execute()

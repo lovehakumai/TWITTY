@@ -202,6 +202,16 @@ small screens.
         }
 
 
+.side-menu-container{
+    padding-top: 60vh;
+    padding-bottom: 5vh;
+}
+
+.logout-link{
+    color: white;
+}
+
+
 /* -- Responsive Styles (Media Queries) ------------------------------------- */
 
 /*

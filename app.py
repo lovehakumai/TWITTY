@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template,url_for
-from flask import redirect, session
-import os
+from flask import redirect, session,flash
+import sns_data
+import os,time
 import sns_user as user, sns_data as sns_data, relation as rel, sns_posts as posts
 from werkzeug.utils import secure_filename
 from extension import db, migrate
@@ -15,7 +16,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGE_FILE = BASE_DIR + '/data/images'
 PROFILE_FILE = BASE_DIR + '/data/thumbnails'
 DB_PATH = os.path.join(BASE_DIR, 'sqlite', 'db.sqlite3')
-
 
 
 # Flaskインスタンスの作と暗号化キーの決定
@@ -102,38 +102,52 @@ def home(user_id):
     post_all=posts.get_posts(user_id)
     return render_template('home.html',posts=post_all,user_id=user_id)
 
-# 投稿画面
-@app.route('/post/<user_id>')
+# プロファイル画面
+@app.route('/myprofile')
 @user.login_required
 def post():
-    return render_template('post.html')
+    user_id = session['login']
+    return url_for('myprofile_try',user_id=user_id)
 
-@app.route('/post/try/<user_id>', methods=["POST"])
-@user.login_required
-def post_try():
-    title = request.form.get('title')
-    image = request.files['image']
-    comment = request.form.get('comment')
-
-    if image:
-        filename=secure_filename(image.filename)
-        # 画像を保存するディレクトリのパスを指定
-        save_path = IMAGE_FILE + filename
-        image.save(save_path)
-    sns_data.save_to_post(title=title, comment=comment, filename=filename)
-    return redirect('/')
-
-# プロファイル画面
-@user.login_required
 @app.route('/myprofile/<user_id>')
-def profile():
-    return render_template('myprofile.html')
+@user.login_required
+def myprofile_try():
+    # ユーザのニックネームがない場合はプロファイル設定画面へ
+    # ある場合はプロファイルを参照する画面へ
+    # ユーザの情報を取得
+    user_id = session['login']
+    user_info = user.user_info(user_id) # 辞書型で1行返される
+
+    if len[user_info]==0 or first_row[user_id]==None:
+        flash('ERROR : something went wrong with your Account!!')
+        return redirect('/')
+    if len[user_info]==1:
+        first_row = user_info[0]
+
+        if first_row['nickname']==None:
+            flash('Before checking your profile,Please set your infomation')
+            return render_template('myprofile_edit.html',user_id=user_id)
+        else:
+            posts=sns_data.get_posts(user_id)
+            return render_template('myprofile.html',
+                                   user_info=first_row,
+                                   post=posts)
+    else:
+        flash('ERROR : something went wrong with your Account!!')
+        return redirect('/') 
+
+# プロファイル編集ボタンをクリックされた時の動作
+@user.login_required
+@app.route('/myprofile')
+def edit_myprofile():
+    user_id=session['login']
+    return render_template('my_profile_edit.html',user_id=user_id)
 
 # プロファイル編集画面
 @user.login_required
 @app.route('/myprofile/<user_id>/edit', methods=["POST"])
-def profile_edit():
-    user_id = user.get_id()
+def myprofile_edit():
+    user_id = user.session['login']
     name = request.get.form('name','')
     introduction = request.get.form('introduction','')
     thumbnail = request.files['image']
@@ -147,7 +161,10 @@ def profile_edit():
         save_path = PROFILE_FILE
         thumbnail.save(save_path,filename)
 
-    sns_data.save_to_post(user_id=user_id, name=name, introduction=introduction, filename=filename)
+    sns_data.save_to_post(user_id=user_id, 
+                          name=name, 
+                          introduction=introduction, 
+                          filename=filename)
 
 
 # 他人プロファイル画面の詳細画面
@@ -180,6 +197,16 @@ def follow_list(user_id):
 def follower_list(user_id):
     follower_users = rel.get_all_following(user_id)
     return render_template('user_following_list.html', users = follower_users)
+
+
+# 投稿処理
+@app.route('/post/try/<user_id>',methods=['POST'])
+@user.login_required
+def post_save():
+    user_id=session['login']
+    title=request.form.get('title',time.utcnow)
+    description = request.form.get('desctiption',"")
+    return sns_data.save_post(user_id,title,description)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)
