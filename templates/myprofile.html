@@ -1,6 +1,24 @@
 {% extends "layout_login.html" %}
-{% block header %}
-<h3>{{ nickname }}'s PROFILE</h3>
+{% block content %}
+    <div class="pure-g custom-section">
+        <!--プロファイルセクション-->
+        <div class="pure-u-1" id="profile-section">
+            <img src="{{thumbnail_url}}" alt="Profile Picture" class="profile-picture">
+        <h1>{{ nickname }}'s Profile</h1>
+        <p>{{ description }}</p>
+        </div>
+        <!--投稿セクション-->
+    <div class="pure-u-1" id="posts-section">
+        <div class="posts-countainer">
+            {% for post in post_all %}
+                <div class="posts-countainer">
+                    <h3>{{ title }}</h3>
+                    <img src="{{ post.image_url }}" alt="Post Image">
+                    <p>{{ post.description }}</p>
+                    <p>{{ post.post_date }}</p>
+                    <span>Likes: {{ post.good_no }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
-
-{%  %}

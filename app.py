@@ -107,22 +107,26 @@ def home(user_id):
 @user.login_required
 def post():
     user_id = session['login']
-    return url_for('myprofile_try',user_id=user_id)
+    return redirect(url_for('myprofile_try',user_id=user_id))
+
+#url_for はリダイレクトを行う redirect 関数と組み合わせて使う必要があります。
+#myprofile_try 関数で user_id を引数として受け取らなければ、その関数の中で user_id を使うことはできません。
+
 
 @app.route('/myprofile/<user_id>')
 @user.login_required
-def myprofile_try():
+def myprofile_try(user_id):
     # ユーザのニックネームがない場合はプロファイル設定画面へ
     # ある場合はプロファイルを参照する画面へ
     # ユーザの情報を取得
+    app.logger.debug('【SECTION!】myprofile_try is in process')
     user_id = session['login']
-    user_info = user.user_info(user_id) # 辞書型で1行返される
-
+    user_info = user.user_info(user_id) # 辞書型でUser_idに関連する行を取得する(想定は1行)
+    first_row=user_info[0]
     if len[user_info]==0 or first_row[user_id]==None:
         flash('ERROR : something went wrong with your Account!!')
         return redirect('/')
     if len[user_info]==1:
-        first_row = user_info[0]
 
         if first_row['nickname']==None:
             flash('Before checking your profile,Please set your infomation')
@@ -136,14 +140,7 @@ def myprofile_try():
         flash('ERROR : something went wrong with your Account!!')
         return redirect('/') 
 
-# プロファイル編集ボタンをクリックされた時の動作
-@user.login_required
-@app.route('/myprofile')
-def edit_myprofile():
-    user_id=session['login']
-    return render_template('my_profile_edit.html',user_id=user_id)
-
-# プロファイル編集画面
+# プロファイル編集画面へのRequestを受理
 @user.login_required
 @app.route('/myprofile/<user_id>/edit', methods=["POST"])
 def myprofile_edit():
@@ -165,6 +162,8 @@ def myprofile_edit():
                           name=name, 
                           introduction=introduction, 
                           filename=filename)
+    return url_for('myprofile_try')
+
 
 
 # 他人プロファイル画面の詳細画面

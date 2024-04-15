@@ -89,4 +89,7 @@ def try_logout():
 def user_info(user_id):
     conn = sqlite3.connect(sqlite_func.DB_FILE)
     c = conn.cursor()
-    c.execute()
+    c.execute('SELECT * FROM Users WHERE user_id=?'.format(user_id))
+    result = c.fetchall()
+    conn.close()
+    return result

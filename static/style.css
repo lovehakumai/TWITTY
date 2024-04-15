@@ -154,3 +154,36 @@ th{
     パーセント（%）: 親要素の寸法に対する相対的な単位です。例えば、幅が50%の要素は、それを含む親要素の幅の50%の大きさになります。
     em: 要素のフォントサイズに対する相対的な単位です。例えば、フォントサイズが16pxの要素に対して2emは32pxに相当します。
 */
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid pink;
+}
+
+#profile-section {
+    background-color: lightblue;
+    padding: 20px;
+    text-align: center;
+}
+
+.posts-container {
+    height: 300px;
+    overflow-y: scroll;
+    padding: 10px;
+    background-color: pink;
+}
+
+.post-card {
+    background-color: white;
+    border: 1px solid #DDD;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+
+/* PureCSSのグリッドシステムを利用する際の小さなカスタマイズ */
+.pure-g [class *= "pure-u"] {
+    padding:10px
+}
