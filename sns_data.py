@@ -4,19 +4,23 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 import sqlite3
 import sqlite_func
-from app import app
 from datetime import datetime, timedelta
 
-app.config['UPLOAD_FOLDER'] = 'static/images'
-app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg'}
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit to prevent large uploads
-
+def get_app():
+    # 循環参照を避けるために関数の中でappをインポートしてappオブジェクトを戻り値として返す関数
+    from app import app
+    app.config['UPLOAD_FOLDER'] = 'static/images'
+    app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg'}
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit to prevent large uploads
+    return app
 
 # ポストされた内容をPostテーブルに保管する処理
 def allowed_file(filename):
+    app = get_app()
     return '.' in filename and filename.rsplit('.',1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def save_post(user_id,title,description):
+    app = get_app()
     if 'image' not in request.files:
         flash('No file part')
         return redirect(url_for('post'))

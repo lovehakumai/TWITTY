@@ -120,8 +120,10 @@ def myprofile_try(user_id):
     # ある場合はプロファイルを参照する画面へ
     # ユーザの情報を取得
     app.logger.debug('【SECTION!】myprofile_try is in process')
+    app.logger.debug('Debug : user_id is '+user_id)
     user_id = session['login']
-    user_info = user.user_info(user_id) # 辞書型でUser_idに関連する行を取得する(想定は1行)
+    #辞書型でUser_idに関連する行を取得する(想定は1行)
+    user_info = user.user_info(user_id)
     first_row=user_info[0]
     if len[user_info]==0 or first_row[user_id]==None:
         flash('ERROR : something went wrong with your Account!!')
@@ -163,8 +165,6 @@ def myprofile_edit():
                           introduction=introduction, 
                           filename=filename)
     return url_for('myprofile_try')
-
-
 
 # 他人プロファイル画面の詳細画面
 @user.login_required
