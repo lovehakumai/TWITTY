@@ -3,20 +3,23 @@
     <div class="pure-g custom-section">
         <!--プロファイルセクション-->
         <div class="pure-u-1" id="profile-section">
-            <img src="{{thumbnail_url}}" alt="Profile Picture" class="profile-picture">
-        <h1>{{ nickname }}'s Profile</h1>
-        <p>{{ description }}</p>
+            <img src="{{ thumbnail_url }}" alt="Profile Picture" class="profile-picture">
+        <h1>{{ user_info.nickname }}'s Profile</h1>
+        <h2>{{ user_info.description }}</h2>
+        <a class="pure-button-primary" style="left: 20%;" href="/myprofile/{{ user_info.user_id }}/edit">Edit Your Profile</a>
         </div>
         <!--投稿セクション-->
     <div class="pure-u-1" id="posts-section">
         <div class="posts-countainer">
             {% for post in post_all %}
                 <div class="posts-countainer">
-                    <h3>{{ title }}</h3>
+                    <h3>{{ post.title }}</h3>
                     <img src="{{ post.image_url }}" alt="Post Image">
                     <p>{{ post.description }}</p>
                     <p>{{ post.post_date }}</p>
+                    <br>
                     <span>Likes: {{ post.good_no }}</span>
+                    <a href="/delete_post/{{ post.user_id }}/{{ post.post_id }}" style="color: red;">※Delete This</a>
                 </div>
             {% endfor %}
         </div>

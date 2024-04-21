@@ -1,0 +1,21 @@
+{% extends "layout_login.html" %}
+{% block content %}
+<div class="pure-g">
+    <h5>{{ msg }}</h3>
+    <form action="/myprofile/edit/try" method="POST" enctype="multipart/form-data" class="pure-form-stacked">
+        <fieldset>
+            <legend>Your Nickname</legend>
+            <input type="text" name="nickname" placeholder="Enter your nickname">
+        </ffieldset>
+        <fieldset>
+            <legend>Upload Your Account Picture</legend>
+            <input type="file" name="thumbnail_img" class="pure-input-1">
+        </fieldset>
+        <fieldset>
+            <legend>Type Your Introduction</legend>
+            <input type="text" name="description" placeholder="Describe yourself">
+        </fieldset>
+        <button type="submit" class="pure-button pure-button-primary">Update Profile</button>
+    </form>
+</div>
+{% endblock %}

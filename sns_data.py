@@ -3,13 +3,13 @@ from flask import Flask, send_from_directory,flash,request,session,redirect,url_
 from werkzeug.utils import secure_filename
 from PIL import Image
 import sqlite3
-import sqlite_func
+import sqlite_func,hashlib
 from datetime import datetime, timedelta
 
 def get_app():
     # 循環参照を避けるために関数の中でappをインポートしてappオブジェクトを戻り値として返す関数
     from app import app
-    app.config['UPLOAD_FOLDER'] = 'static/images'
+    app.config['UPLOAD_FOLDER'] = '/images'
     app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg'}
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit to prevent large uploads
     return app
@@ -19,48 +19,46 @@ def allowed_file(filename):
     app = get_app()
     return '.' in filename and filename.rsplit('.',1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-def save_post(user_id,title,description):
+def save_post_try(request):
     app = get_app()
-    if 'image' not in request.files:
-        flash('No file part')
-        return redirect(url_for('post'))
-    
-    file = request.files['image']
-    if file.filename == '':
-        flash('No selected file')
-        return redirect(url_for('post'))
-    
-    if file and allowed_file(file.filename):
-        filename=secure_filename(file.filename)
-        user_path = os.path.join(app.config['UPLOAD_FOLDER'],user_id)
-        if not os.path.exists(user_path):
-            os.makedirs(user_path)
-        file_path=os.path.join(user_path,filename)
+    user_id = session['login']
+    title = request.form.get('title')
+    description = request.form.get('description')
+    # ファイルが存在している場合は, file名作成処理を行う
+    # ユーザ用のフォルダが存在しない時はフォルダを作成する
+    if 'post_img' in request.files:
+        if  request.files['post_img']!='':
+            file = request.files['post_img']
+            if allowed_file(file.filename):
+                _, ext = os.path.splitext(filename)
+                hash_name = hashlib.md5(filename.encode('utf-8')).hexdigest()
+                print("hashed filename : ", hash_name)
+                filename = f"{hash_name}{ext}"
+                filename=secure_filename(file.filename)
+                post_save_dir = os.path.join(app.BASE_DIR,app.UPLOAD_FOLDER,user_id)
 
-        image = Image.open(file)
-        image.thumbnail((800,800))
-        image.save(file_path)
-
-        # DB処理
-        conn = sqlite3.connect(sqlite_func.DB_FILE)
-        c = conn.cursor()
-        c.execute('INSERT INTO Post_contents(user_id,title,image_url,description) VALUES (?,?,?,?)'.format(user_id,title,file_path,description))
-        conn.close()
-        return redirect(url_for('home',user_id=user_id))
+                if not os.path.exists(post_save_dir):
+                    os.makedirs(post_save_dir)
+                
+                save_path=os.path.join(post_save_dir,filename)
+                image = Image.open(file)
+                image.thumbnail((800,800))
+                image.save(save_path)
+                image_url = user_id+"/"+filename
     else:
-        flash('Allowed file types are .jpg, jpeg')
-        return redirect(url_for('post',user_id=user_id))
+        image_url = ""
+    # DB処理
+    sql='INSERT INTO Post_contents(user_id,title,image_url,description) VALUES (?,?,?,?)'
+    args = (user_id,title,image_url,description)
+    result = sqlite_func.exec(sql, args)
+    return redirect(url_for('home',user_id=user_id))
     
 # ユーザ自身のポスト内容を取得する
 def get_posts(user_id):
     today = datetime.now().date()
     one_week_ago = today - timedelta(days=7)
-
-    conn = sqlite3.conn()
-    c = conn.cursor()
-    c.execute('SELECT * FROM Post_Contents WHERE user_id=? AND post_date BETWEEN ? AND ? ORDER BY post_date DESC'.format(user_id, today,one_week_ago ))
-    result = c.fetchall()
-    conn.close()
+    sql='SELECT * FROM Post_contents WHERE user_id = ? ORDER BY post_date DESC'
+    result = sqlite_func.select(sql, user_id)
     return result
 
 # conn.close() を実行する理由は、データベースとの接続を適切に閉じることで、リソースの解放とデータの整合性を保つためです。以下にその重要な理由をいくつか挙げます：
@@ -74,3 +72,12 @@ def get_posts(user_id):
 # 使用方法: fetchone() 関数は、カーソルが指向する結果セットから次の行を取得します。もし結果セットにこれ以上の行がない場合は None を返します。
 # fetchall(): 結果セットの全行が必要な場合、特に小規模なデータセットの処理や分析に適しています。大規模な結果セットでの使用は、メモリの消費が大きくなるため注意が必要です。
 # 使用方法: fetchall() 関数は、カーソルが指向する結果セットにあるすべての行をリストとして返します。結果セットが空の場合、空のリストが返されます。
+
+def save_profile_try(user_id,nickname,description,thumbnail_url):
+    sql = 'UPDATE Users SET nickname = ?, description = ?, thumbnail_url = ? WHERE user_id = ?'
+    params = (nickname, description, thumbnail_url, user_id)
+    result = sqlite_func.exec(sql,params)
+    if result != None or result != "":
+        return True
+    else:
+        return False

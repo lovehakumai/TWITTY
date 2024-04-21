@@ -184,6 +184,7 @@ th{
 
 
 /* PureCSSのグリッドシステムを利用する際の小さなカスタマイズ */
-.pure-g [class *= "pure-u"] {
+/* 他のhtmlに影響を与えないように custom-sectionというクラスを追加する */
+.custom-section .pure-g [class *= "pure-u"] {
     padding:10px
 }

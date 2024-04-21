@@ -1,4 +1,31 @@
-{% extends layout_login %}
+{% extends "layout_login.html" %}
 {% block header %}
-<h3>{{user}}</h3>
+<div class="pure-u-1-2 pure-g">
+    <img src="{{ user_info.thumbnail_url }}" alt="Profile Picture" class="profile-picture">
+    <p>{{ user_info.nickname }}</p>
+</div>
 {% endblock %}
+{% block content %}
+<div class="pure-g">
+    <form  class="pure-form pure-form-stacked" action="/post/try/{{ user_id }}" enctype="multipart/form-data" method="POST">
+        <fieldset>
+            <legend>Picture(~16MB, .JPG|.jpg)</legend>
+            <input type="file" name="post_img" placeholder="Upload Image">
+            <br>
+            <legend>Title</legend>
+            <input type="text" name="title" placeholder="add title of this post">
+            <br>
+            <legend>Description</legend>
+            <input type="text" name="description" placeholder="explain about your post">
+            <button type="submit" class="pure-button-primary" >Post</button>
+        </fieldset>
+    </form>
+</div>
+{% endblock %}
+
+<!--application/x-www-form-urlencoded（デフォルト）:
+これが最も一般的なタイプで、すべての文字はサーバーに送信する前にエンコードされます（例：スペースは+に変換され、特殊文字は%XX形式にエンコードされます）。
+通常のフォーム送信でテキストデータを扱う場合に使用されます。
+multipart/form-data:
+ファイルや非ASCIIテキストなどの大量のデータを送信する必要がある場合に使用されます。
+このタイプを指定することで、フォームはファイルやデータを複数の部分（パート）に分けて送信します。それぞれの部分は独自のHTTPヘッダを持ち、フォームの異なるフィールドやファイルが個別にエンコードされて送信されます。-->
