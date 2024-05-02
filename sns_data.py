@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 def get_app():
     # 循環参照を避けるために関数の中でappをインポートしてappオブジェクトを戻り値として返す関数
     from app import app
-    app.config['UPLOAD_FOLDER'] = '/images'
     app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg'}
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit to prevent large uploads
     return app
@@ -29,13 +28,18 @@ def save_post_try(request):
     if 'post_img' in request.files:
         if  request.files['post_img']!='':
             file = request.files['post_img']
-            if allowed_file(file.filename):
+            filename= file.filename
+            if allowed_file(filename):
                 _, ext = os.path.splitext(filename)
                 hash_name = hashlib.md5(filename.encode('utf-8')).hexdigest()
                 print("hashed filename : ", hash_name)
+                
                 filename = f"{hash_name}{ext}"
-                filename=secure_filename(file.filename)
-                post_save_dir = os.path.join(app.BASE_DIR,app.UPLOAD_FOLDER,user_id)
+                print("BEFORE > filename : ", filename)
+                filename=secure_filename(filename)
+                print("AFTER > filename : ", filename)
+                user_id = session['login']
+                post_save_dir = os.path.join('static/images',user_id)
 
                 if not os.path.exists(post_save_dir):
                     os.makedirs(post_save_dir)

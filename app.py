@@ -131,7 +131,13 @@ def myprofile_try(user_id):
             return render_template('myprofile_edit.html',user_id=user_id)
         else:
             posts=sns_data.get_posts(user_id)
-            first_row['thumbnail_url'] = url_for('static')
+            for post in posts :
+                print("BEFORE > POST IMAGE_URL : ", post['image_url'])
+                post['image_url'] = url_for('static',filename='images/'+ post['image_url'])
+                print("AFTER > POST IMAGE_URL : ", post['image_url'])
+            print("BEFORE > THUMBNAIL IMAGE_URL : ",first_row['thumbnail_url'] )
+            first_row['thumbnail_url'] = url_for('static',filename='thumbnails/'+first_row['thumbnail_url'])
+            print("AFTER > THUMBNAIL IMAGE_URL : ",first_row['thumbnail_url'] )
             return render_template('myprofile.html',
                                    user_info=first_row,
                                    post_all=posts)
@@ -161,6 +167,7 @@ def myprofile_edit():
         # 日本語などの非ASCII文字が含まれるファイル名がsecure_filename関数によって「jpg」などの予期せぬ値に変更されてしまう問題が発生しています。
         # これは、secure_filenameがデフォルトでASCII文字のみを扱い、非ASCII文字を除去するためです。
         # ファイル拡張子を保持
+        filename=thumbnail.filename
         _, ext = os.path.splitext(filename)
         # ファイル名をハッシュ化
         hash_name = hashlib.md5(filename.encode('utf-8')).hexdigest()
@@ -207,8 +214,9 @@ def profile_others(user_id):
 @user.login_required
 def post():
     user_id = session['login']
-    user_info = user.user_info(user_id)
+    user_info = user.user_info(user_id)[0]
     # TODO : debug system
+    user_info['thumbnail_url'] = url_for('static', filename='thumbnails/' + user_info['thumbnail_url'])
     return render_template('post.html', user_info=user_info,user_id=user_id)
 
 @app.route('/post/try/<user_id>',methods=['POST'])
@@ -231,6 +239,20 @@ def delete_login(user_id,post_id):
     params = (user_id,post_id)
     sqlite_func.exec(sql, params)
     return redirect(url_for('myprofile', user_id=user_id))
+
+# ユーザ検索機能
+@app.route('/search')
+@user.login_required
+def search():
+    return render_template('user_search.html')
+
+@app.route('/search',methods=['POST'])
+@user.login_required
+def search_try():
+    keyword = request.form.get('keyword')
+    result = user.get(keyword)
+    return render_template('search_result.html', result)
+
 
 
 
