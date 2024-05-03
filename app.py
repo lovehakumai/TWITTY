@@ -20,7 +20,8 @@ app.secret_key = "test_key"
 BASE_DIR = 'static'
 IMAGE_FILE = BASE_DIR + '/images'
 PROFILE_FILE = BASE_DIR + '/thumbnails'
-DB_PATH = os.path.join(BASE_DIR, 'sqlite', 'db.sqlite3')
+FILE_ABS_PATH = os.path.dirname(__file__)
+DB_PATH = FILE_ABS_PATH + '/sqlite/db.sqlite3'
 
 # Flask-Migrate
 # モデルをインポート
@@ -246,21 +247,22 @@ def delete_login(user_id,post_id):
 def search():
     return render_template('user_search.html')
 
-@app.route('/search',methods=['POST'])
+@app.route('/search_users_tab',methods=['POST'])
 @user.login_required
-def search_try():
+def search_users_tab_try():
+    app.logger('Process Search_users_tab_try : ')
     keyword = request.form.get('keyword')
-    result = user.get(keyword)
-    return render_template('search_result.html', result)
+    result = user.search_user_tab(keyword)
+    return result
+
+@app.route('/search_posts_tab',methods=['POST'])
+@user.login_required
+def search_posts_tab_try():
+    keyword = request.form.get('keyword')
+    result = user.search_post_tab(keyword)
+    return result
 
 
-
-
-# # 他のユーザを検索する画面
-# @user.login_required
-# @app.route('/user_search')
-# def user_search():
-#     return render_template('')
 
 # # プロファイル画面から、フォローしている人を一覧で表示
 # @user.login_required

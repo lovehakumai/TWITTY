@@ -6,13 +6,13 @@
         $('#query').submit(function(e){
             e.preventDefault(); // e.preventDefault(); は、フォームのデフォルトの送信動作（ページの再読み込みを伴う通常のPOSTリクエスト）をキャンセルします。
             $.ajax({
-                url : '/search',
+                url : '/search_users_tab',
                 method : 'POST',
                 data : $(this).serialize(), // フォームの入力値をURLエンコードされたクエリストリング形式でシリアライズ（整形）します。これにより、フォームのデータがサーバーに適切に送信されます。
                 success : function(data){
                     // Ajaxリクエストが成功した際に実行されるコールバック関数です。この関数内で、サーバーからのレスポンスが引数dataとして渡されます。
                     const len = data.length;
-                    let html;
+                    let html="";
                     let temp_html;
                     let temp_data;
                     console.log('len : ', len)
@@ -36,8 +36,74 @@
                     $("#result").empty().hide().append(html).fadeIn(1000)
                 }
             })
-        })
-    })
+        });
+
+        $('#search_user').on('click', function(e){
+            e.preventDefault();
+            const query = $('#keyword').val();
+            $.ajax({
+                url: '/search_users_tab',
+                type: 'POST',
+                data: { 'query':query },
+                success: function(data){
+                    const len=data.length;
+                    let html=""
+                    let temp_html;
+                    let temp_data;
+                    for(let i=0;i<len;i++){
+                        console.log('data[',i,'] : ', data[i])
+                        temp_data = data[i]
+                        temp_html = `<div class="posts-countainer">
+                                        <h3><a href=${ temp_data.url }>${ temp_data.nickname }</a></h3>
+                                        <p>${ temp_data.description }</p>
+                                        <--!投稿内容 : タグ指定がなければ最新。タグ指定があれば最適なポストを表示-->
+                                        <br>
+                                        <div class="posts-container">
+                                            <h4>${ temp_data.title }</h4>
+                                            <img src=${ temp_data.url }>
+                                        </div>
+                                        <span>Likes: ${ temp_data.good_no }</span>
+                                        <hr><--!仕切り線を追加-->
+                                    </div>`
+                        html += temp_html
+                    }
+                    $("#result").empty().hide().append(html).fadeIn(1000)
+                }
+            })
+        });
+
+        $('#search_post').on('click',function(e){
+            e.preventDefault();
+            const query=$('#keyword').val()
+            $.ajax({
+                url:'/search_posts_tab',
+                type:'POST',
+                data:{'query':query},
+                success:function(data){
+                    const len = data.length;
+                    let html="";
+                    let temp_html;
+                    let temp_data;
+                    for(let i=0;i<len;i++){
+                        temp_data = data[i];
+                        temp_html = `<div class="posts-countainer">
+                                        <h3><a href=${ temp_data.url }>${ temp_data.nickname }</a></h3>
+                                        <p>${ temp_data.description }</p>
+                                        <--!投稿内容 : タグ指定がなければ最新。タグ指定があれば最適なポストを表示-->
+                                        <br>
+                                        <div class="posts-container">
+                                            <h4>${ temp_data.title }</h4>
+                                            <img src=${ temp_data.url }>
+                                        </div>
+                                        <span>Likes: ${ temp_data.good_no }</span>
+                                        <hr><!--仕切り線を追加-->
+                                    </div>`
+                    }
+                    $("#result").empty().hide().append(html).fadeIn(1000);
+                }
+            })
+        });
+    });
 </script>
 {% endblock %}
 
@@ -47,13 +113,14 @@
     <form action="POST" id="query" class="pure-form-stacked">
             <p>KEY WORDS</p>
         <div class="pure-menu-horizontal">
-            <input type="text" name="keyword" placeholder="Sakura, Kento…">
+            <input type="text" name="keyword" id="keyword" placeholder="Sakura, Kento…">
             <button class="pure-button-primary" type="send" >Search</button>
         </div>
     </form>
     <br>
 </div>
 <hr>
+<!--ユーザを検索するかポストを検索するかを選択する箇所-->
 <div class="pure-g">
     <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
