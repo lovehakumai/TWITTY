@@ -1,3 +1,5 @@
+
+
 h1 {
     background-color: blue;
     color: grey;
@@ -169,10 +171,9 @@ th{
 }
 
 .posts-container {
-    height: 300px;
-    overflow-y: scroll;
+    height: auto;
     padding: 10px;
-    background-color: pink;
+    background-color:lightcyan;
 }
 
 .post-card {
@@ -188,4 +189,50 @@ th{
 .custom-section .pure-g [class *= "pure-u"] {
     height: auto;
     padding:10px
+}
+
+/*user_search.htmlに使用するstyle*/
+.pure-card {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.posts-container {
+    flex-basis: 100%; /* 全幅を使う */
+    margin-top: 10px;
+    height: auto;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: lightgray;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.item {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.title-date {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.post-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.likes {
+    margin-top: 10px;
 }

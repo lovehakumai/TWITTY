@@ -1,4 +1,23 @@
 {% extends "layout_login.html" %}
+{% block header %}
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function(){
+        $('#follow_btn').on('click',function(e){
+            e.preventDefault()
+            $.ajax({
+                url : "/follow/{{ user_info.user_id }}",
+                method:"POST",
+                data:"{{ user_info.user_id }}",
+                success:function(data){
+                    const follow_result = data;
+                    $('#follow_btn').empty().hide().append(follow_result).fadeIn(1000)
+                }
+            })
+        })
+    });
+</script>
+{% endblock %}
 {% block content %}
     <div class="pure-g custom-section">
         <!--プロファイルセクション-->
@@ -6,7 +25,7 @@
             <p >{{ user_info.nickname }}'s Profile</p>
             <img src="{{ user_info.thumbnail_url }}" alt="Profile Picture" class="profile-picture">
             <p>{{ user_info.description }}</p>
-            <a class="pure-menu-item" href="/myprofile/{{ user_info.user_id }}/edit">Edit Your Profile</a>
+            <a href="/follow/{{ user_info.user_id }}" class="pure-button" id="follow_btn">{{ relation }}</a>
         </div>
         <!--投稿セクション-->
     <div class="pure-u-1" id="posts-section">
@@ -23,7 +42,6 @@
                             <h5 style="font-size: large; ">{{ post.description }}</h5>
                             <p>{{ post.post_date }}</p>
                             <span>Likes: {{ post.good_no }}</span>
-                            <a href="/delete_post/{{ post.user_id }}/{{ post.post_id }}" style="color: red;">※Delete This</a>
                         </div>
                         <div class="pure-u-sm-1-4"><br></div>
                     </div>

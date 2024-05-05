@@ -19,18 +19,23 @@
                     for(let i=0; i<len; i++){
                         console.log('data[',i,'] : ', data[i])
                         temp_data = data[i]
-                        temp_html = `<div class="posts-countainer">
-                                        <h3><a href=${ temp_data.url }>${ temp_data.nickname }</a></h3>
-                                        <p>${ temp_data.description }</p>
-                                        <--!投稿内容 : タグ指定がなければ最新。タグ指定があれば最適なポストを表示-->
-                                        <br>
-                                        <div class="posts-container">
-                                            <h4>${ temp_data.title }</h4>
-                                            <img src=${ temp_data.url }>
+                        temp_html = `
+                                    <div class="pure-card">
+                                        <div class="post-info">
+                                            <img src="static/thumbnails/${temp_data.thumbnail_url}" alt="Thumbnail" class="profile-picture"> <!-- Thumbnail image -->
+                                            <h3><a href="/profile/${temp_data.user_id}">${temp_data.nickname}</a></h3>
+                                            <div class="title-date">
+                                                <h4>${temp_data.title}</h4>
+                                            </div>
                                         </div>
-                                        <span>Likes: ${ temp_data.good_no }</span>
-                                        <hr><!--仕切り線を追加-->
-                                    </div>`
+                                        <p>${temp_data.description}</p>
+                                        <div class="posts-container">
+                                            <img src="static/images/${temp_data.image_url}" alt="Post Image" style="width: auto; height: auto;"> <!-- Post image -->
+                                        </div>
+                                        <span class="likes">Likes: ${temp_data.good_no}</span>
+                                    </div>
+                                    <hr>
+                                    `
                         html += temp_html
                     }
                     $("#result").empty().hide().append(html).fadeIn(1000)
@@ -41,10 +46,12 @@
         $('#search_user').on('click', function(e){
             e.preventDefault();
             const query = $('#keyword').val();
+            console.log('query : ', query)
             $.ajax({
-                url: '/search_users_tab',
+                url: '/switch_user',
                 type: 'POST',
-                data: { 'query':query },
+                data: JSON.stringify(query, null, '\t'),
+                contentType: 'application/json;charset=UTF-8',
                 success: function(data){
                     const len=data.length;
                     let html=""
@@ -53,18 +60,23 @@
                     for(let i=0;i<len;i++){
                         console.log('data[',i,'] : ', data[i])
                         temp_data = data[i]
-                        temp_html = `<div class="posts-countainer">
-                                        <h3><a href=${ temp_data.url }>${ temp_data.nickname }</a></h3>
-                                        <p>${ temp_data.description }</p>
-                                        <--!投稿内容 : タグ指定がなければ最新。タグ指定があれば最適なポストを表示-->
-                                        <br>
-                                        <div class="posts-container">
-                                            <h4>${ temp_data.title }</h4>
-                                            <img src=${ temp_data.url }>
+                        temp_html = `
+                                    <div class="pure-card">
+                                        <div class="post-info">
+                                            <img src="static/thumbnails/${temp_data.thumbnail_url}" alt="Thumbnail" class="profile-picture"> <!-- Thumbnail image -->
+                                            <h3><a href="/profile/${temp_data.user_id}">${temp_data.nickname}</a></h3>
+                                            <div class="title-date">
+                                                <h4>${temp_data.title}</h4>
+                                            </div>
                                         </div>
-                                        <span>Likes: ${ temp_data.good_no }</span>
-                                        <hr><--!仕切り線を追加-->
-                                    </div>`
+                                        <p>${temp_data.description}</p>
+                                        <div class="posts-container">
+                                            <img src="static/images/${temp_data.image_url}" alt="Post Image" style="width: auto; height: auto;"> <!-- Post image -->
+                                        </div>
+                                        <span class="likes">Likes: ${temp_data.good_no}</span>
+                                    </div>
+                                    <hr>
+                                    `
                         html += temp_html
                     }
                     $("#result").empty().hide().append(html).fadeIn(1000)
@@ -72,34 +84,43 @@
             })
         });
 
-        $('#search_post').on('click',function(e){
+        $('#search_post').on('click', function(e){
             e.preventDefault();
-            const query=$('#keyword').val()
+            const query = $('#keyword').val();
+            console.log('query : ', query)
             $.ajax({
-                url:'/search_posts_tab',
-                type:'POST',
-                data:{'query':query},
-                success:function(data){
-                    const len = data.length;
-                    let html="";
+                url: '/switch_post',
+                type: 'POST',
+                data: JSON.stringify(query, null, '\t'),
+                contentType: 'application/json;charset=UTF-8',
+                success: function(data){
+                    const len=data.length;
+                    let html=""
                     let temp_html;
                     let temp_data;
                     for(let i=0;i<len;i++){
-                        temp_data = data[i];
-                        temp_html = `<div class="posts-countainer">
-                                        <h3><a href=${ temp_data.url }>${ temp_data.nickname }</a></h3>
-                                        <p>${ temp_data.description }</p>
-                                        <--!投稿内容 : タグ指定がなければ最新。タグ指定があれば最適なポストを表示-->
-                                        <br>
-                                        <div class="posts-container">
-                                            <h4>${ temp_data.title }</h4>
-                                            <img src=${ temp_data.url }>
+                        console.log('data[',i,'] : ', data[i])
+                        temp_data = data[i]
+                        temp_html = `
+                                    <div class="pure-card">
+                                        <div class="post-info">
+                                            <img src="static/thumbnails/${temp_data.thumbnail_url}" alt="Thumbnail" class="profile-picture"> <!-- Thumbnail image -->
+                                            <h3><a href="/profile/${temp_data.user_id}">${temp_data.nickname}</a></h3>
+                                            <div class="title-date">
+                                                <h4>${temp_data.title}</h4>
+                                            </div>
                                         </div>
-                                        <span>Likes: ${ temp_data.good_no }</span>
-                                        <hr><!--仕切り線を追加-->
-                                    </div>`
+                                        <p>${temp_data.description}</p>
+                                        <div class="posts-container">
+                                            <img src="static/images/${temp_data.image_url}" alt="Post Image" style="width: auto; height: auto;"> <!-- Post image -->
+                                        </div>
+                                        <span class="likes">Likes: ${temp_data.good_no}</span>
+                                    </div>
+                                    <hr>
+                                    `
+                        html += temp_html
                     }
-                    $("#result").empty().hide().append(html).fadeIn(1000);
+                    $("#result").empty().hide().append(html).fadeIn(1000)
                 }
             })
         });
@@ -110,11 +131,11 @@
 {% block content %}
 <h3>Let's search Other users!!</h3>
 <div class="pure-g">
-    <form action="POST" id="query" class="pure-form-stacked">
+    <form action="/search_users_tab" method="POST" id="query" class="pure-form-stacked">
             <p>KEY WORDS</p>
         <div class="pure-menu-horizontal">
             <input type="text" name="keyword" id="keyword" placeholder="Sakura, Kento…">
-            <button class="pure-button-primary" type="send" >Search</button>
+            <button class="pure-button-primary" type="submit" >Search</button>
         </div>
     </form>
     <br>
@@ -125,15 +146,15 @@
     <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
             <li class="pure-menu-item">
-                <a class="pure-menu-link" id="search_user">Users</a>
+                <a class="pure-button" id="search_user">Users</a>
             </li>
             <li class="pure-menu-item">
-                <a class="pure-menu-link" id="search_post">Posts</a>
+                <a class="pure-button" id="search_post">Posts</a>
             </li>
         </ul>
     </div>
 </div>
-<div id="results">
+<div id="result">
     
 </div>
 

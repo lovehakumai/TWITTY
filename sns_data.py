@@ -32,12 +32,9 @@ def save_post_try(request):
             if allowed_file(filename):
                 _, ext = os.path.splitext(filename)
                 hash_name = hashlib.md5(filename.encode('utf-8')).hexdigest()
-                print("hashed filename : ", hash_name)
                 
                 filename = f"{hash_name}{ext}"
-                print("BEFORE > filename : ", filename)
                 filename=secure_filename(filename)
-                print("AFTER > filename : ", filename)
                 user_id = session['login']
                 post_save_dir = os.path.join('static/images',user_id)
 
@@ -52,8 +49,8 @@ def save_post_try(request):
     else:
         image_url = ""
     # DB処理
-    sql='INSERT INTO Post_contents(user_id,title,image_url,description) VALUES (?,?,?,?)'
-    args = (user_id,title,image_url,description)
+    sql='INSERT INTO Post_contents(user_id,title,image_url,description,post_date) VALUES (?,?,?,?,?)'
+    args = (user_id,title,image_url,description, datetime.now())
     result = sqlite_func.exec(sql, args)
     return redirect(url_for('home',user_id=user_id))
     

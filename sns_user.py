@@ -45,8 +45,8 @@ def try_login(form):
     # user_idが文字列として提供されている場合、文字列内の各文字が個別のバインディングとして解釈される可能性があります。例えば、user_idが"abcd"であれば、4つのバインディングが提供されたと解釈されます。
     # 正しい方法は、user_idを単一の要素を持つタプルとして渡すことです。タプルを使う場合は、カンマを忘れないようにしてください（カンマがないと、それはタプルとは認識されません）。
     c.execute('SELECT password FROM Users where user_id=?',(user_id,))
-    conn.close()
     result = c.fetchone()
+    conn.close()
     msg = ""
     if result is None:
         msg = "Id and Password is mandetory"
@@ -88,14 +88,29 @@ def user_info(user_id):
 
 # ユーザ検索画面の回答を返す関数
 def search_user_tab(keyword):
-    print('Process Search_users : ', keyword)
-    result = sqlite_func.select('SELECT * FROM Users LEFT OUTER JOIN (SELECT * FROM( SELECT *,RANK() OVER (PARTITION BY user_id ORDER BY post_date DESC) as rank FROM Post_contents) WHERE rank=1) AS Post ON Users.user_id=Post.user_id WHERE nickname = ? LIMIT 10',keyword)
-    print('result : ', result)
-    return jsonify(result)
+    if keyword == None:
+        keyword="undefined"
+    keyword = "%"+keyword+"%"
+    result = sqlite_func.select('SELECT nickname, Users.description, thumbnail_url, Users.user_id, last_update, post_id, image_url, good_no, post_date, title, rank FROM Users LEFT OUTER JOIN (SELECT * FROM( SELECT *,RANK() OVER (PARTITION BY user_id ORDER BY post_date DESC) as rank FROM Post_contents) WHERE rank=1) AS Post ON Users.user_id=Post.user_id WHERE nickname LIKE ? LIMIT 10',keyword)
+    return result
 
 # ポスト検索画面の回答を返す関数
 def search_post_tab(keyword):
-    print('Process Search_titles : ', keyword)
-    result = sqlite_func.select('SELECT * FROM Users LEFT OUTER JOIN Post_contents ON Users.user_id=Post.user_id WHERE title=? ORDER BY user_id, post_date LIMIT 10',keyword)
-    print('result : ', result)
-    return jsonify(result)
+    if keyword == None:
+        keyword="undefined"
+    keyword = "%"+keyword+"%"
+    result = sqlite_func.select('SELECT nickname, Users.description, thumbnail_url, Users.user_id, last_update, post_id, image_url, good_no, post_date, title FROM Users LEFT OUTER JOIN Post_contents ON Users.user_id=Post_contents.user_id WHERE title LIKE ? ORDER BY Users.user_id, post_date LIMIT 10',keyword)
+    return result
+
+# エラー : 
+# TypeError: Object of type bytes is not JSON serializable
+# リスト内の辞書型データがAJAXに渡される際に「byte型として認識されている」という問題の原因は、
+# パスワードフィールドに存在しているようです。リストの例を見ると、'password' 
+# キーには b'$2b$12$iyofR8TR8KOHBDJIWuleFOTBT6LkKDvWZvgWlKG6JKbQbZwNcxKzO' のような値があり、
+# これがバイト文字列です（b'' で示されています）。
+# JSONはバイト文字列を直接シリアライズできないため、
+# このデータが原因で「TypeError: Object of type bytes is not JSON serializable」というエラーが発生しています。
+
+# パスワードのようなセキュリティに関わる情報をフロントエンドに送信することは推奨されませんし、セキュリティリスクが伴います。
+# そのため、JSONとしてクライアントに送るデータからはこのような情報を除外するべきです。
+# また、バイト型のデータが含まれている場合は、それをデコードして文字列に変換するか、あるいは単純に除外してしまうことが望ましいです。

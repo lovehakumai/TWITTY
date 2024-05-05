@@ -8,4 +8,5 @@ class Users(db.Model):
     password = db.Column(db.String(300))
     description = db.Column(db.String(300))
     thumbnail_url = db.Column(db.String(120), unique=False)
+    last_update = db.Column(db.DateTime, default=datetime.now())
 

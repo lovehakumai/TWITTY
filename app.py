@@ -1,16 +1,18 @@
 from flask import Flask, request, render_template,url_for
 from flask import redirect, session,flash
 import sns_data
-import os,time
+import os,time,sys
 import sns_user as user, sns_data as sns_data, relation as rel, sns_posts as posts, sqlite_func
 import hashlib
 from werkzeug.utils import secure_filename
 from extension import db, migrate
+
 # スキーマ定義のインポート
 from models.Users import Users
 from models.Relations import Relations
 from models.Post_communications import Post_communications
 from models.Post_contents import Post_contents
+
 
 # Flaskインスタンスの作と暗号化キーの決定
 app = Flask(__name__)
@@ -71,6 +73,7 @@ def login_try():
     result, msg = user.try_login(request.form)
     if result :
         user_id = session['login']
+        print("login_try result : ", result)
         return redirect(url_for('home',user_id=user_id))
     else:
         return render_template('login.html', msg=msg)
@@ -101,7 +104,7 @@ def create_account_try():
 @user.login_required
 def home(user_id):
     post_all=posts.get_posts(user_id)
-    return render_template('home.html',posts=post_all,user_id=user_id)
+    return render_template('home.html',posts=post_all)
 
 # プロファイル画面
 @app.route('/myprofile')
@@ -203,12 +206,41 @@ def myprofile_edit():
 @user.login_required
 @app.route('/profile/<user_id>')
 def profile_others(user_id):
-    user_id = user.get_id()
-    name = request.form.get('name','')
-    introduction = request.form.get('introduction','')
-    thumbnail = request.files['image']
-    posts = sns_data.get_posts(user_id)
-    return render_template('')
+    user_info = user.user_info(user_id)
+    first_row=user_info[0]
+    posts=sns_data.get_posts(user_id)
+    followed_by = session['login']
+    follow_to = user_id
+    relation = 'Following' if rel.get(followed_by,follow_to) else 'Follow'
+    for post in posts :
+        post['image_url'] = url_for('static',filename='images/'+ post['image_url'])
+        first_row['thumbnail_url'] = url_for('static',filename='thumbnails/'+first_row['thumbnail_url'])
+
+    return render_template('user_profile.html',
+                            user_info=first_row,
+                            post_all=posts,
+                            relation=relation
+                            )
+
+# フォロー アンフォロー処理
+@user.login_required
+@app.route("/follow/<user_id>",methods=["POST"])
+def rel_try(user_id):
+    followed_by = session['login']
+    follow_to = user_id
+    print("FOLLOW BY : ", followed_by)
+    print("FOLLOW TO : ", follow_to)
+    result = rel.get(followed_by,follow_to)
+    print("rel_try result : ", result)
+    if result==False:
+        sql = 'INSERT INTO Relations(followed_by, follow_to) VALUES(?,?);'
+        sqlite_func.exec(sql,(followed_by,follow_to))
+        return "Following"
+    else:
+        sql = 'DELETE FROM Relations WHERE followed_by=? AND follow_to=?;'
+        sqlite_func.exec(sql,(followed_by,follow_to))
+        return "Follow"
+
 
 # 投稿処理
 @app.route('/post')
@@ -250,15 +282,32 @@ def search():
 @app.route('/search_users_tab',methods=['POST'])
 @user.login_required
 def search_users_tab_try():
-    app.logger('Process Search_users_tab_try : ')
     keyword = request.form.get('keyword')
+    print("keyword in users tab: ", keyword)
     result = user.search_user_tab(keyword)
+    return result
+
+@app.route('/switch_user', methods=["POST"])
+@user.login_required
+def switch_user():
+    print("In the Process of switch_user : ")
+    keyword = request.json
+    result = user.search_user_tab(keyword)
+    return result
+
+@app.route('/switch_post', methods=["POST"])
+@user.login_required
+def switch_post():
+    print("In the Process of switch_post : ")
+    keyword = request.json
+    result = user.search_post_tab(keyword)
     return result
 
 @app.route('/search_posts_tab',methods=['POST'])
 @user.login_required
 def search_posts_tab_try():
     keyword = request.form.get('keyword')
+    print("keyword in post_tab : ", keyword)
     result = user.search_post_tab(keyword)
     return result
 
