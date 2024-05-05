@@ -1,0 +1,8 @@
+# データベースを無視
+db.sqlite3
+
+# 画像系のデータを無視
+static/images
+static/posts
+static/thumbnails
+
